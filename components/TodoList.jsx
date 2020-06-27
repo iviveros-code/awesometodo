@@ -10,7 +10,7 @@ import {
 import colors from "./colors";
 import TodoModal from "./TodoModal";
 
-export default TodoList = ({ list, updateList }) => {
+export default TodoList = ({ list, updateList, deleteList }) => {
   const completedCount = list.todos.filter((todo) => todo.completed).length;
   const remainigCount = list.todos.length - completedCount;
 
@@ -38,6 +38,21 @@ export default TodoList = ({ list, updateList }) => {
       <TouchableOpacity
         style={[styles.listContainer, { backgroundColor: list.color }]}
         onPress={() => toggleListModal()}
+        onLongPress={() =>
+          Alert.alert(
+            "Anular Lista",
+            "Segur@ deseas Eliminarla???",
+            [
+              { text: "OK", onPress: () => deleteList(list) },
+              {
+                text: "Cancel",
+                onPress: () => console.log("Cancel Pressed"),
+                style: "cancel",
+              },
+            ],
+            { cancelable: false }
+          )
+        }
       >
         <Text style={styles.listTitle} numberOfLines={1}>
           {list.name}

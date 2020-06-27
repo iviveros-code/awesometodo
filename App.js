@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import colors from "./components/colors";
 import { AntDesign } from "@expo/vector-icons";
-import tempData from "./tempData";
 import TodoList from "./components/TodoList";
 import AddListModal from "./components/AddListModal";
 import Fire from "./Fire";
@@ -39,25 +38,34 @@ export default function App() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (firebase.detach()) {
-  //   }
-  // }, []);
-
   const renderList = (list) => {
-    return <TodoList list={list} updateList={updateList} />;
+    return (
+      <TodoList list={list} updateList={updateList} deleteList={deleteList} />
+    );
   };
 
   const addList = (list) => {
-    setLists([...lists, { ...list, id: lists.length + 1, todos: [] }]);
+    // setLists([...lists, { ...list, id: lists.length + 1, todos: [] }]);
+
+    firebase.addList({
+      name: list.name,
+      color: list.color,
+      todos: [],
+    });
   };
 
   const updateList = (list) => {
-    setLists(
-      lists.map((item) => {
-        return item.id === list.id ? list : item;
-      })
-    );
+    // setLists(
+    //   lists.map((item) => {
+    //     return item.id === list.id ? list : item;
+    //   })
+    // );
+
+    firebase.updateList(list);
+  };
+
+  const deleteList = (list) => {
+    firebase.deleteList(list);
   };
 
   if (loading) {
