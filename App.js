@@ -7,16 +7,42 @@ import {
   FlatList,
   Modal,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import colors from "./components/colors";
 import { AntDesign } from "@expo/vector-icons";
 import tempData from "./tempData";
 import TodoList from "./components/TodoList";
 import AddListModal from "./components/AddListModal";
+import Fire from "./Fire";
 
 export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [lists, setLists] = useState(tempData);
+  const [lists, setLists] = useState([]);
+  const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    firebase = new Fire((error, user) => {
+      if (error) {
+        return alert("Algo no está bien");
+      }
+      firebase.getLists((lists) => {
+        setLists(lists);
+        setUser(user);
+        setLoading(false);
+      });
+      setUser(user);
+    });
+    return () => {
+      firebase.detach(() => {});
+    };
+  }, []);
+
+  // useEffect(() => {
+  //   if (firebase.detach()) {
+  //   }
+  // }, []);
 
   const renderList = (list) => {
     return <TodoList list={list} updateList={updateList} />;
@@ -34,6 +60,14 @@ export default function App() {
     );
   };
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={color.blue} />
+        <Text style={{ textAlign: "center" }}>Cargando ...</Text>
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
       <Modal
@@ -48,6 +82,9 @@ export default function App() {
           addList={addList}
         />
       </Modal>
+      <View>
+        <Text>User: {user.uid}</Text>
+      </View>
       <View style={{ flexDirection: "row" }}>
         <View style={styles.divider} />
         <Text style={styles.title}>
@@ -68,7 +105,7 @@ export default function App() {
       <View style={{ height: 275, paddingLeft: 32 }}>
         <FlatList
           data={lists}
-          keyExtractor={(item) => item.name}
+          keyExtractor={(item) => item.id.toString()}
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => renderList(item)}
